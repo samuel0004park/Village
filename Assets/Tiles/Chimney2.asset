@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13b75c95f34a00d4e8c04f76b73312e6, type: 3}
+  m_Name: Chimney2
+  m_EditorClassIdentifier: 
+  m_AnimatedSprites:
+  - {fileID: -1961843521, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: 878553920, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: -1041905077, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: -2130219188, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: 1434132827, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: -609081494, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: 2043688968, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: 1271090178, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: 677747343, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: -668867638, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: 763740579, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: -1900469416, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: 38651196, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: 2083730448, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: 1277603970, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: -726275967, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: -415035894, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: 38651196, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: -676411580, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: -499181302, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: 1284535989, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: -1067230972, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: 1414950991, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: 157034037, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: -356041635, guid: 506d6283ef2630348829b39eafe11423, type: 3}
+  - {fileID: 743077331, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: 531744059, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: 1570499753, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: 9922070, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  - {fileID: -956203504, guid: 715a2a8e49a25e448995f363f38d46c3, type: 3}
+  m_MinSpeed: 10
+  m_MaxSpeed: 10
+  m_AnimationStartTime: 0
+  m_AnimationStartFrame: 0
+  m_TileColliderType: 0

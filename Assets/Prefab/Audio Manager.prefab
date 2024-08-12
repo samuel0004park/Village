@@ -1,0 +1,119 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4288440567596022564
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4288440567596022566}
+  - component: {fileID: 4288440567596022567}
+  m_Layer: 0
+  m_Name: Audio Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4288440567596022566
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4288440567596022564}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.639163, y: -2.3278427, z: -0.56299746}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4288440567596022567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4288440567596022564}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a328d0e034769c44905d6f73e46a1a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sounds:
+  - name: footsteps 1
+    clip: {fileID: 8300000, guid: 3815ac593c7329942b9979f270f55470, type: 3}
+    volume: 0.2
+    loop: 0
+  - name: footsteps 2
+    clip: {fileID: 8300000, guid: 3815ac593c7329942b9979f270f55470, type: 3}
+    volume: 0.2
+    loop: 0
+  - name: footsteps 3
+    clip: {fileID: 8300000, guid: 3815ac593c7329942b9979f270f55470, type: 3}
+    volume: 0.2
+    loop: 0
+  - name: footsteps 4
+    clip: {fileID: 8300000, guid: 3815ac593c7329942b9979f270f55470, type: 3}
+    volume: 0.2
+    loop: 0
+  - name: type_sound
+    clip: {fileID: 8300000, guid: 58a5dd5888761af4dbff225d52caf926, type: 3}
+    volume: 0.2
+    loop: 0
+  - name: enter_sound
+    clip: {fileID: 8300000, guid: 4fbc62a75b72f6d42b33069b6c067e1d, type: 3}
+    volume: 0.2
+    loop: 0
+  - name: rain_sound
+    clip: {fileID: 8300000, guid: 56ec30861f0029d49a35b34328fcd194, type: 3}
+    volume: 0.2
+    loop: 1
+  - name: cancel_sound
+    clip: {fileID: 8300000, guid: b684a39386dd32643ae31231eb32d296, type: 3}
+    volume: 0.2
+    loop: 0
+  - name: correct_sound
+    clip: {fileID: 8300000, guid: 73eba3fcf5a6d1645af103fc0d7258b9, type: 3}
+    volume: 0.2
+    loop: 0
+  - name: beep
+    clip: {fileID: 8300000, guid: 6374e5da1503149489b55ea19d19d947, type: 3}
+    volume: 0.2
+    loop: 0
+  - name: open_sound
+    clip: {fileID: 8300000, guid: 6cb9cc4f0a4c2ae43b558466dabc4b7c, type: 3}
+    volume: 0.2
+    loop: 0
+  - name: switch_sound
+    clip: {fileID: 8300000, guid: bd5e9c93c771c94408b19d82850efb9e, type: 3}
+    volume: 0.2
+    loop: 0
+  - name: pick_sound
+    clip: {fileID: 8300000, guid: 159aac7436be9354fbbc7029e3a2086b, type: 3}
+    volume: 0.2
+    loop: 0
+  - name: slash_sound
+    clip: {fileID: 8300000, guid: 976746c9f705e35468b0108165d80bb8, type: 3}
+    volume: 0.2
+    loop: 0
+  - name: takeoff_sound
+    clip: {fileID: 8300000, guid: 73eba3fcf5a6d1645af103fc0d7258b9, type: 3}
+    volume: 0.2
+    loop: 0
+  - name: equip_sound
+    clip: {fileID: 8300000, guid: 3a3ede64940be364eacd3236df6480da, type: 3}
+    volume: 0.2
+    loop: 0
+  - name: pause_in
+    clip: {fileID: 8300000, guid: 07b2bf61af5130a4d96ed3160f83ef65, type: 3}
+    volume: 0.2
+    loop: 0
+  - name: pause_out
+    clip: {fileID: 8300000, guid: 8f37acc2898b203448c078076a670ee9, type: 3}
+    volume: 0.2
+    loop: 0
