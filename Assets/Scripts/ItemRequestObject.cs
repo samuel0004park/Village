@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +11,8 @@ public class ItemRequestObject : MonoBehaviour
     public string type;
     private bool flag=false;
     public int revealItemID = -1;
+
+    public static event EventHandler ItemRequestPositiveEvent;
     public void Result()
     {
         if (flag)
@@ -63,14 +66,14 @@ public class ItemRequestObject : MonoBehaviour
 
         objectDialogue.GiveItem();
     }
+
     private void CheckShrine()
     {
         ObjectDialogue temp = gameObject.GetComponent<ObjectDialogue>();
-        if (temp.id < 100)
+        if (temp.GetID() < 100)
         {
-            GameObject player = GameObject.Find("Player");
-            SaveNLoad save = player.GetComponent<SaveNLoad>();
-            save.Save();
+            ItemRequestPositiveEvent?.Invoke(this, EventArgs.Empty);
+            SaveNLoad.Instance.Save();
         }
     }
 }

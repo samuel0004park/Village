@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,8 @@ public class OpenFence : MonoBehaviour
 {
     public GameObject[] fence;
     public float closeTimer;
+
+    public static event EventHandler OnOpenFenceEvent;
 
     public void Open()
     {
@@ -31,6 +34,6 @@ public class OpenFence : MonoBehaviour
         {
             fence[i].gameObject.SetActive(tf);
         }
-        AudioManager.instance.Play("open_sound");
+        OnOpenFenceEvent?.Invoke(this, EventArgs.Empty);
     }
 }

@@ -1,40 +1,40 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class WeatherManager : MonoBehaviour
 {
-    #region Singleton
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            DontDestroyOnLoad(this.gameObject);
-            instance = this;
-        }
+    static public WeatherManager Instance;
+
+    [SerializeField] private ParticleSystem rain;
+
+
+    public event EventHandler<OnWeatherChangedEventArgs> OnWeatherChangedEvent;
+    public class OnWeatherChangedEventArgs : EventArgs {
+        public string weather;
+    }
+
+
+
+    private void Awake() {
+        if (Instance == null)
+            Instance = this;
         else
-            Destroy(this.gameObject);
-    }
-    #endregion Singleton
-    static public WeatherManager instance;
-
-    private AudioManager theAudio;
-    public ParticleSystem rain;
-    public string rain_sound;
-    
-    void Start()
-    {
-        theAudio = FindObjectOfType<AudioManager>();
+            Destroy(gameObject);
     }
 
-    public void Rain()
+
+    public void StartRain()
     {
-        theAudio.Play(rain_sound);
+        OnWeatherChangedEvent?.Invoke(this, new OnWeatherChangedEventArgs { weather= "rain_sound" });
         rain.Play();
     }
+
+
     public void StopRain()
     {
-        theAudio.Stop(rain_sound);
+        OnWeatherChangedEvent?.Invoke(this, new OnWeatherChangedEventArgs { weather = "" });
         rain.Stop();
     }
 }

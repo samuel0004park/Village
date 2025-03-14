@@ -11,9 +11,7 @@ public class SavePoint : MonoBehaviour
         if (!flag && collision.CompareTag("Player"))
         {
             flag = true;
-            GameObject player = GameObject.Find("Player");
-            SaveNLoad save = player.GetComponent<SaveNLoad>();
-            save.Save();
+            SaveNLoad.Instance.Save();
         }
     }
   

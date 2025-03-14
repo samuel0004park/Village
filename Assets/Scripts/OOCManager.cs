@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,41 +6,40 @@ using UnityEngine.UI;
 
 public class OOCManager : MonoBehaviour
 {
-    private AudioManager theAudio;
-    public string key_sound;
-    public string cancel_sound;
-    public string enter_sound;
 
-    public GameObject up_Panel;
-    public GameObject down_Panel;
+    public static OOCManager Instance;
 
-    public Text up_Text;
-    public Text down_Text;
+    [SerializeField] private GameObject up_Panel;
+    [SerializeField] private GameObject down_Panel;
 
-    public bool activated;
-    private bool result = true;
+    [SerializeField] private Text up_Text;
+    [SerializeField] private Text down_Text;
+
+    public bool result { get; private set; }
+    public bool activated { get; private set; }
+
     private bool keyInput;
-    void Start()
-    {
-        theAudio = FindObjectOfType<AudioManager>();
+    
+    public event EventHandler OnOOCNavigateEvent;
+    public event EventHandler<OnOOCPressButtonEventArgs> OnOOCPressButtonEvent;
+    public class OnOOCPressButtonEventArgs : EventArgs {
+        public bool result;
     }
 
-    private void Selected()
-    {
-        theAudio.Play(key_sound);
-        result = !result;
-
-        if (result)
-        {
-            up_Panel.gameObject.SetActive(true);
-            down_Panel.gameObject.SetActive(false);
-        }
-        else
-        {
-            up_Panel.gameObject.SetActive(false);
-            down_Panel.gameObject.SetActive(true);
-        }
+    private void Awake() {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
     }
+
+    private void Update() {
+        if (!keyInput) return;
+
+        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow)) Selected();
+        else if (Input.GetKeyDown(KeyCode.Z)) UseItem();
+        else if (Input.GetKeyDown(KeyCode.X)) CancelChoice();
+    }
+
+
     public void ShowChoice(string _upText, string _downText)
     {
         activated = true;
@@ -47,47 +47,38 @@ public class OOCManager : MonoBehaviour
         up_Text.text = _upText;
         down_Text.text = _downText;
 
-        up_Panel.gameObject.SetActive(true);
-        down_Panel.gameObject.SetActive(false);
+        TogglePanels(result);
 
-        StartCoroutine(ShowChoiceCoroutine());
+        Invoke(nameof(EnableKeyInput), 0.5f);
     }
 
-    public bool GetResult()
+    private void EnableKeyInput()
     {
-        return result;
-    }
-
-    IEnumerator ShowChoiceCoroutine()
-    {
-        yield return new WaitForSeconds(0.01f);
-
         keyInput = true;
     }
 
-    void Update()
-    {
-        if (keyInput)
-        {
-            if (Input.GetKeyDown(KeyCode.UpArrow)){
-                Selected();
-            }
-            else if(Input.GetKeyDown(KeyCode.DownArrow)){
-                Selected();
-            }
-            else if (Input.GetKeyDown(KeyCode.Z)){
-                //use item
-                theAudio.Play(enter_sound);
-                keyInput = false;
-                activated = false;
-            }
-            else if (Input.GetKeyDown(KeyCode.X)){
-                //cancel choice
-                theAudio.Play(cancel_sound);
-                result = false;
-                activated = false;
-                keyInput = false;
-            }
-        }
+    private void Selected() {
+        result = !result;
+        TogglePanels(result);
+        OnOOCNavigateEvent?.Invoke(this, EventArgs.Empty);
     }
+
+    private void TogglePanels(bool state) {
+        up_Panel.gameObject.SetActive(state);
+        down_Panel.gameObject.SetActive(!state);
+    }
+
+    private void UseItem() {
+        OnOOCPressButtonEvent?.Invoke(this, new OnOOCPressButtonEventArgs { result = true });
+        keyInput = false;
+        activated = false;
+    }
+
+    private void CancelChoice() {
+        OnOOCPressButtonEvent?.Invoke(this, new OnOOCPressButtonEventArgs { result = false});
+        result = false;
+        activated = false;
+        keyInput = false;
+    }
+
 }

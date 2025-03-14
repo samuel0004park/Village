@@ -3,46 +3,54 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class EmotionManager : MonoBehaviour
-
 {
-    #region Singleton
+    public enum Emotion {NONE, TEAR, DEATH}
+    static public EmotionManager Instance;
+
+    [SerializeField] private List<Sprite> emotionList = new List<Sprite>(); 
+    private Dictionary<string, Sprite> emotionDictionary = new Dictionary<string, Sprite>();
+    
     private void Awake()
     {
-        if (instance == null)
-        {
-            DontDestroyOnLoad(this.gameObject);
-            instance = this;
-        }
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+
+        SubscribeEvents();
+        SetUp();
+    }
+
+    private void OnDestroy() {
+        UnSubscribeEvents();
+    }
+
+    private void SubscribeEvents() {
+        PlayerStat.OnPlayerEmotionChangedEvent += PlayerStat_OnPlayerEmotionChangedEvent;
+    }
+    
+    private void UnSubscribeEvents() {
+        PlayerStat.OnPlayerEmotionChangedEvent -= PlayerStat_OnPlayerEmotionChangedEvent;
+    }
+
+
+    private void PlayerStat_OnPlayerEmotionChangedEvent(object sender, PlayerStat.OnPlayerEmotionChangedEventArgs e) {
+        if (e.emotion == Emotion.NONE)
+            HideEmotion(e.sprite);
         else
-            Destroy(this.gameObject);
-    }
-    #endregion Singleton
-    static public EmotionManager instance;
-
-    [Header("Data Structures")]
-    public List<Emotion> emotionList = new List<Emotion>(); //list that contains all items in game
-
-    private void Start()
-    {
-        //load all emotions in resources
-        emotionList.Add(new Emotion("angry"));
-        emotionList.Add(new Emotion("talk"));
-        emotionList.Add(new Emotion("confused"));
-        emotionList.Add(new Emotion("exclamation"));
-        emotionList.Add(new Emotion("love"));
-        emotionList.Add(new Emotion("question"));
-        emotionList.Add(new Emotion("tear"));
-        emotionList.Add(new Emotion("death"));
+            ShowEmotion(e.sprite, e.emotion,3f);
     }
 
-    public void ShowEmotion(SpriteRenderer _sprite, string _emotionID, float _time = 0f)
+   
+    private void SetUp() {
+        foreach (var emotion in emotionList) {
+            emotionDictionary.Add(emotion.name, emotion);
+        }
+    }
+
+    public void ShowEmotion(SpriteRenderer _sprite, Emotion _emotion, float _time = 0f)
     {
         //find appropriate emotion from list and change emotion
-        for (int i = 0; i < emotionList.Count; i++)
-        {
-            if (emotionList[i].emotionID == _emotionID)
-                _sprite.sprite = emotionList[i].emotionSprite;
-        }
+        _sprite.sprite = emotionDictionary[_emotion.ToString()];
+
         //show emotion for a period of time
         StartCoroutine(StartEmotionCoroutine(_sprite,_time));
     }

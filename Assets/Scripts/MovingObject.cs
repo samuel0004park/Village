@@ -1,174 +1,109 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MovingObject : MonoBehaviour
 {
-    [Header("Shared Variables")]
-    public string characterName;
-    public float speed;
-    public int walkCount;
-    public Animator anim;
-    
-    public int currentWalkCount;
-    [HideInInspector]
-    public BoxCollider2D boxCollider;
+    [SerializeField] protected BoxCollider2D boxCollider;
+    [SerializeField] private LayerMask obstacleLayers;
+    public Vector3Int faceDirection { get; private set; }
 
-    public Queue<string> queue;
-    private bool notCoroutine = false;
+    public Grid grid { get; private set; }
+    public Vector3Int currentCell { get; private set; }
 
-    [Header("Protected Variables(no need to be seen)")]
-    public GameObject scanObject;
-    protected Vector2 vector;
-    protected Vector3 dirVec;
+    private bool canMove = false;
+    private const int WALK_SPEED = 5;
+    private const int RUN_SPEED = 8;
 
-   
-    public void Move(string _dir, int _frequency=5)
-    {
-        queue.Enqueue(_dir);
-        //if not Coroutine, which is the beginning, set coroutine to true and start a new coroutine
-        if (!notCoroutine)
-        {
-            notCoroutine = true;
-            StartCoroutine(MoveCoroutine(_dir, _frequency));
-        }
-    } //use queue to process move movable objects
-    
-    IEnumerator MoveCoroutine(string _dir, int _frequency)
-    {
+    public event EventHandler<OnMovingObjectMoveEventArgs> OnMovingObjectMoveStatusChangedEvent;
+
+    public class OnMovingObjectMoveEventArgs : EventArgs {
+        public float x;
+        public float y;
+        public bool isMoving;
+    }
+
+    public void TryFindGrid() {
+        grid = FindObjectOfType<Grid>();
+    }
+
+    public void SetGrid(Grid targetGrid) {
+        grid = targetGrid;
+    }
+
+    public void SnapObjectToGrid(Vector3Int targetCell) {
+        transform.position = grid.GetCellCenterWorld(targetCell);
+        currentCell = targetCell;
+    }
+
+    public void ContinueMove() {
+        canMove = true;
+    }
+
+    public void StopMove() {
+        StopAllCoroutines();
+        canMove = false;
+    }
+
+
+    public bool TryMove(Vector3Int targetCell, bool doRun) {
+        if (!canMove || IsCellBlocked(targetCell))
+            return false;
+
+        StartCoroutine(SmoothMoveToCell(targetCell, doRun==true? RUN_SPEED:WALK_SPEED));
+        return true;
+    }
+
+    private bool IsCellBlocked(Vector3Int cell) {
+        Vector3 targetPos = grid.GetCellCenterWorld(cell);
+
+        // Cast a ray from current position to target cell to check for obstacles
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, targetPos - transform.position, 1f, obstacleLayers);
+
+        InvokeWalkAnimationEvent(cell, false);
         
-        //while there is an order in queue
-        while (queue.Count!=0)
-        {
-            //wait time is taken after every movement frequency
-            switch (_frequency)
-            {
-                case 1:
-                    yield return new WaitForSeconds(4f);
-                    break;
-                case 2:
-                    yield return new WaitForSeconds(3f);
-                    break;
-                case 3:
-                    yield return new WaitForSeconds(2f);
-                    break;
-                case 4:
-                    yield return new WaitForSeconds(1f);
-                    break;
-                case 5:
-                    break;
-            }
+        return hit.collider != null; // Returns true if an obstacle is detected
+    }
 
-            //pop the order in queue
-            string direction = queue.Dequeue();
+    private IEnumerator SmoothMoveToCell(Vector3Int targetCell, int speed) {
+        InvokeWalkAnimationEvent(targetCell, true);
+     
+        canMove = false;
+        currentCell = targetCell;
 
-            //set vector to zero so vectors do not overlap
-            vector.Set(0, 0);
+        Vector3 targetPos = grid.GetCellCenterWorld(targetCell);
 
-            //set vector with coresponding direction 
-            switch (direction)
-            {
-                case "UP":
-                    vector.y = 1;
-                    break;
-                case "DOWN":
-                    vector.y = -1;
-                    break;
-                case "RIGHT":
-                    vector.x = 1;
-                    break;
-                case "LEFT":
-                    vector.x = -1;
-                    break;
-            }
+        float elapsedTime = 0f;
+        Vector3 startPos = transform.position;
 
-            //set animation values
-            anim.SetFloat("DirX", vector.x);
-            anim.SetFloat("DirY", vector.y);
-
-            //check for collision, if there is collision ahead, wait 
-            while (true)
-            {
-                bool checkCollisionFlag = CheckCollision();
-                if (checkCollisionFlag)
-                {
-                    anim.SetBool("isWalking", false);
-                    yield return new WaitForSeconds(1f);
-                    if (characterName == "Slime") { 
-                        notCoroutine = false;
-                        StopAllCoroutines();
-                    }
-                }
-                else
-                    break;
-            }
-
-            //enlarge box collider so other objects do not pass 
-            EnlargeCollider();
-            anim.SetBool("isWalking", true);
-
-            //actual translation
-            while (currentWalkCount < walkCount)
-            {
-                //translate horizontal or vertical 
-                if (vector.x != 0)
-                    transform.Translate((vector.x * (speed )) / 200, 0, 0); //divided by 200 b/c sprite is too small 
-                else if (vector.y != 0)
-                    transform.Translate(0, (vector.y * (speed )) / 200, 0);
-
-                currentWalkCount++;
-
-                if (currentWalkCount == walkCount)
-                    boxCollider.size = new Vector2(1f, 1f);
-
-                yield return new WaitForSeconds(0.01f);
-            }
-
-            //end walk animation and reset
-            if (_frequency != 5)
-                anim.SetBool("isWalking", false);
-            currentWalkCount = 0;
+        while (elapsedTime < 1f) {
+            elapsedTime += speed * Time.deltaTime;
+            transform.position = Vector3.Lerp(startPos, targetPos, elapsedTime);
+            yield return null;
         }
-        //reset so next action is available
-        anim.SetBool("isWalking", false);
-        notCoroutine = false;
-    } //start coroutine to actually move objects
 
-    protected bool CheckCollision()
-    {
-        //get vectors for raycast
-        //start from currrent pos to destination
-        Vector2 start = transform.position;
-        Vector2 end = start + new Vector2(vector.x * speed * walkCount, vector.y * speed * walkCount);
+        InvokeStopAnimationEvent();
 
-        //disable box collider so it does not catch its own
-        boxCollider.enabled = false;
-        RaycastHit2D hit = Physics2D.Raycast(start, end, 1f, LayerMask.GetMask("NoPass") | LayerMask.GetMask("Object") | LayerMask.GetMask("Player"));
-        boxCollider.enabled = true;
-
-        //check direction 
-        CheckDirection();
-
-        if (hit.collider != null)
-            return true;
-       
-        return false;
-    }
-    protected void CheckDirection()
-    {
-        //save a direction vector to know where the gameObejct is currently facing
-        if (vector.x != 0)
-            dirVec = vector.x == 1 ? Vector3.right : Vector3.left;
-        else if (vector.y != 0)
-            dirVec = vector.y == 1 ? Vector3.up : Vector3.down;
+        transform.position = targetPos; // Ensure precise snapping
+        canMove = true;
     }
 
-    public void EnlargeCollider()
-    {
-        if (vector.x != 0)
-            boxCollider.size = new Vector2(2.1f, 1f);
-        else
-            boxCollider.size = new Vector2(1f, 2.1f);
+    private void InvokeWalkAnimationEvent(Vector3Int targetCell, bool isWalking) {
+        int xdir = Mathf.Clamp(targetCell.x - currentCell.x, -1, 1);
+        int ydir = Mathf.Clamp(targetCell.y - currentCell.y, -1, 1);
+
+        OnMovingObjectMoveStatusChangedEvent?.Invoke(this, new OnMovingObjectMoveEventArgs { x = xdir, y = ydir, isMoving = isWalking });
+    }
+
+    private void InvokeStopAnimationEvent() {
+        OnMovingObjectMoveStatusChangedEvent?.Invoke(this, null);
+    }
+
+
+    public void SetFaceDirection(Vector3Int direction) {
+        faceDirection = direction;
     }
 }
 

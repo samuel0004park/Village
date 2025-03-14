@@ -375,13 +375,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55cb4cb72ba44304ea058228f1af1f27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterName: Slime
-  speed: 6.25
-  walkCount: 32
   anim: {fileID: 5474944536686653429}
-  currentWalkCount: 0
-  boxCollider: {fileID: 0}
-  scanObject: {fileID: 0}
+  boxCollider: {fileID: 5474944536686653427}
   inter_MoveWaitTime: 1
   attackDelay: 0.15
 --- !u!61 &5474944536686653427

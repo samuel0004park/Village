@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +11,8 @@ public class TransferMap : MonoBehaviour
 
     private FadeManager theFade;
 
+    public static event EventHandler OnTransformMapEvent;
+
     private void Start()
     {
         theFade = FindObjectOfType<FadeManager>();
@@ -17,7 +20,7 @@ public class TransferMap : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.name == "Player")
+        if (collision.gameObject.tag == "Player")
         {
             StartCoroutine(TransferCoroutine());
         }
@@ -26,21 +29,13 @@ public class TransferMap : MonoBehaviour
       
     IEnumerator TransferCoroutine()
     {
-        //stop player movement and fade out scene
-        OrderManager.instance.ForceStop(1);
-        theFade.FadeOut();
-
+        FadeManager.Instance.FadeOut();
         yield return new WaitForSeconds(0.7f);//wait so fade in does not occur instantly
+        FadeManager.Instance.FadeIn();
 
-        //change the name of the currentMapName to the destination name
-        PlayerManager.instance.currentSceneName = transferSceneName;
-        PlayerManager.instance.currentMapName = transferMapName;
-
-        //load new scene
-        GameManager.instance.loading = true;
+        PlayerManager.Instance.SetLocationInfo(transferSceneName, transferMapName);
         SceneManager.LoadScene(transferSceneName.ToString());
 
-        //fadein and let player move
-        theFade.FadeIn();
+        OnTransformMapEvent?.Invoke(this, EventArgs.Empty);
     }
 }

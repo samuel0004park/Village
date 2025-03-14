@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dabf27aaf1001f64e85990cfe95670fa, type: 3}
+  m_Name: GoldCoin
+  m_EditorClassIdentifier: 
+  itemID: 30003
+  itemName: "\uAE08\uB3D9\uC804"
+  itemDescription: "\uC81C\uBC95 \uBB34\uAC1C\uAC00 \uB098\uAC00\uB294 \uAE08\uB3D9\uC804\uC774\uB2E4"
+  itemIcon: {fileID: 21300000, guid: af539e6eacce4984086730ea59c8ef36, type: 3}
+  itemType: 1
+  useDescriptionTop: "\uB3D9\uC804\uC744 \uC2E0\uC0AC\uC5D0 \uBC14\uCE5C\uB2E4"
+  useDescriptionBottom: "\uBC14\uCE58\uC9C0 \uC54A\uB294\uB2E4"

@@ -30,12 +30,11 @@ public class QuestionAndResult : MonoBehaviour
 
         //wait until finish choosing
         yield return new WaitUntil(() => !theNumber.activated);
-        result = theNumber.GetResult();
+        result = theNumber.correctFlag;
 
         CheckChoice();
 
         choosing = false;
-        PlayerManager.instance.interact = false; //set player's state to normal 
 
         //if choice was negative, disable flag so can choose again 
         if (redo)
@@ -57,7 +56,7 @@ public class QuestionAndResult : MonoBehaviour
     }
     private void NegativeResult()
     {
-        AudioManager.instance.Play(beep_sound);
+        SFXManager.Instance.Play(beep_sound);
         redo = true;
     }
 
@@ -89,11 +88,9 @@ public class QuestionAndResult : MonoBehaviour
     private void CheckShrine()
     {
         ObjectDialogue temp = gameObject.GetComponent<ObjectDialogue>();
-        if (temp.id < 100)
+        if (temp.GetID() < 100)
         {
-            GameObject player = GameObject.Find("Player");
-            SaveNLoad save = player.GetComponent<SaveNLoad>();
-            save.Save();
+            SaveNLoad.Instance.Save();
         }
     }
 }

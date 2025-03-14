@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,87 +6,63 @@ using UnityEngine.SceneManagement;
 
 public class Title : MonoBehaviour
 {
+    [SerializeField] private PlayerManager playerManager;
+    [SerializeField] private SaveNLoad saveNLoad;
+    [SerializeField] private Animator animator;
+    [SerializeField] private CanvasGroup ButtonCanvasGroup;
 
-    [Header("References")]
-    private FadeManager theFade;
-    private GameManager theGM;
-    public GameObject button_Group;
+    public static event EventHandler OnTitleButtonPressedEvent;
+    public static event EventHandler OnGameStartEvent;
+    #region Button Method
 
-    public string click_sound;
-    void Start()
-    {
-        theFade = FindObjectOfType<FadeManager>();
-        theGM = FindObjectOfType<GameManager>();
-  
-        OrderManager.instance.ForceStop(2);
+    public void StartNewGame() {
+        LoadNewGame();
+        ButtonPress();
     }
 
-    public void StartGame()
-    {
-        StartCoroutine(GameStartCoroutine());
-    }
-    IEnumerator GameStartCoroutine()
-    {
-        button_Group.SetActive(false);
-        theFade.FadeOut();
-        AudioManager.instance.Play(click_sound);
-        yield return new WaitForSeconds(2f);
-
-        //make player visible
-        Color color = PlayerManager.instance.GetComponent<SpriteRenderer>().color;
-        color.a = 1f;
-        PlayerManager.instance.GetComponent<SpriteRenderer>().color = color;
-
-        //change player location info to match 
-        PlayerManager.instance.currentSceneName = Location.SceneNames.Init;
-        PlayerManager.instance.currentMapName = Location.MapNames.StartingIsland;
-
-        // initialize starting player hp and stamina
-        PlayerStat.instance.hp = 3;
-        PlayerStat.instance.stamina = 500;
-        PlayerStat.instance.Refresh();
-        QuestManager.instance.questId = 10;
-        QuestManager.instance.questActionIndex = 0;
-
-        //set border
-        GameManager.instance.loading = true;
-        theGM.LoadStart();
-
-        SceneManager.LoadScene(PlayerManager.instance.currentSceneName.ToString());
+    public void LoadGame() {
+        LoadSavedGame();
+        ButtonPress();
     }
 
-    public void LoadGame()
-    {
-        StartCoroutine(LoadGameoroutine());
+    #endregion
+
+    private void ButtonPress() {
+        ButtonCanvasGroup.interactable = false;
+        OnTitleButtonPressedEvent?.Invoke(this, EventArgs.Empty);
     }
-    IEnumerator LoadGameoroutine()
-    {
-        button_Group.SetActive(false);
-        theFade.FadeOut();
-        AudioManager.instance.Play(click_sound);
-        yield return new WaitForSeconds(2f);
 
-        // make player visible
-        Color color = PlayerManager.instance.GetComponent<SpriteRenderer>().color;
-        color.a = 1f;
-        PlayerManager.instance.GetComponent<SpriteRenderer>().color = color;
 
-        // load saved info and refresh
-        SaveNLoad saveNLoad = FindObjectOfType<SaveNLoad>();
+
+    private void LoadNewGame() {
+        LoadNewPlayer();
+
+        QuestManager.Instance.ResetQuestProgress();
+
+        animator.SetTrigger("doHide");
+        OnGameStartEvent?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void LoadSavedGame() {
+        LoadExingPlayer();
+
+        animator.SetTrigger("doHide");
+        OnGameStartEvent?.Invoke(this, EventArgs.Empty);
+    }
+
+
+    private void LoadNewPlayer() {
+        playerManager.SetLocationInfo(Location.SceneNames.Init, Location.MapNames.StartingIsland);
+        playerManager.playerStat.LoadStat(PlayerStat.MAX_HP, PlayerStat.MAX_STAMINA);
+    }
+
+    private void LoadExingPlayer() {
         saveNLoad.Load();
-        PlayerStat.instance.HeartBeat();
-        PlayerStat.instance.UpdateBar();
-        //DialogueManager.instance.GenerateData();
-
-        //set border
-        theGM.LoadStart();
-
-        SceneManager.LoadScene(PlayerManager.instance.currentSceneName.ToString());
     }
 
     public void ExitGame()
     {
-        AudioManager.instance.Play(click_sound);
+        OnTitleButtonPressedEvent?.Invoke(this, EventArgs.Empty);
         Application.Quit();
     }
 }

@@ -36829,6 +36829,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7dde4746ad1d9f4aa79c46eb7cc30ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  staminaBar: {fileID: 0}
   id: 701
   item_id: 0
   type: Dialogue
@@ -37256,6 +37257,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7dde4746ad1d9f4aa79c46eb7cc30ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  staminaBar: {fileID: 0}
   id: 32
   item_id: 0
   type: Dialogue
@@ -37403,6 +37405,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7dde4746ad1d9f4aa79c46eb7cc30ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  staminaBar: {fileID: 0}
   id: 700
   item_id: 0
   type: Dialogue
@@ -40385,6 +40388,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7dde4746ad1d9f4aa79c46eb7cc30ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  staminaBar: {fileID: 0}
   id: 31
   item_id: 0
   type: Dialogue
@@ -43085,6 +43089,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7dde4746ad1d9f4aa79c46eb7cc30ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  staminaBar: {fileID: 0}
   id: 33
   item_id: 0
   type: Dialogue
@@ -43197,7 +43202,6 @@ GameObject:
   - component: {fileID: 1902977159}
   - component: {fileID: 1902977158}
   - component: {fileID: 1902977157}
-  - component: {fileID: 1902977156}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -43205,22 +43209,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1902977156
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1902977155}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 372d8f565c6c1434994e34a9f5e33e85, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  moveSpeed: 100
-  bound: {fileID: 0}
-  bounds: []
 --- !u!114 &1902977157
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -57671,6 +57659,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7dde4746ad1d9f4aa79c46eb7cc30ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  staminaBar: {fileID: 0}
   id: 34
   item_id: 0
   type: Dialogue

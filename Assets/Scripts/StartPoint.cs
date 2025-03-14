@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,20 +7,28 @@ public class StartPoint : MonoBehaviour
 {
     public Location.MapNames startPoint; //the name of the current scene
 
+    [SerializeField] private Vector3Int vector;
+    [SerializeField] private Grid grid;
     private CameraManager theCamera;
-
+    
+    public static event EventHandler OnStartMoveEvent;
+    
     void Start()
     {
         theCamera = FindObjectOfType<CameraManager>();
 
         //if the address matches, then move the position.
-        if (startPoint == PlayerManager.instance.currentMapName)
+        if (startPoint == PlayerManager.Instance.CurrentMapName)
         { 
-            if (GameManager.instance.loading)
-            {
-                //if moving between scenes, change camera and player position to spart point
-                theCamera.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, theCamera.transform.position.z);
-                PlayerManager.instance.transform.position = this.transform.position;
+
+            if (GameManager.Instance.savedPoint == true) {
+                theCamera.transform.position = new Vector3(GameManager.Instance.playerSpawnPoint.x, GameManager.Instance.playerSpawnPoint.y, GameManager.Instance.playerSpawnPoint.z);
+                PlayerManager.Instance.PlayerMovement.PlaceAtStartPoint(GameManager.Instance.playerSpawnPoint);
+                GameManager.Instance.ResetSpawnPoint();
+            }
+            else {
+                theCamera.transform.position = new Vector3(vector.x, vector.y, vector.z);
+                PlayerManager.Instance.PlayerMovement.PlaceAtStartPoint(grid, vector); 
             }
 
             //set bound
@@ -29,14 +38,10 @@ public class StartPoint : MonoBehaviour
     }
     IEnumerator StartMove()
     {
-        //Get character info
-        OrderManager.instance.PreLoadCharacter();
-
         //wait and enable move
         yield return new WaitForSeconds(1f);
 
-        GameManager.instance.loading = false;
-        OrderManager.instance.ContinueMove();
+        OnStartMoveEvent?.Invoke(this, EventArgs.Empty);
     }
 
 }

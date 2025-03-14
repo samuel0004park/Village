@@ -1,27 +1,53 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class QuestManager : MonoBehaviour
 {
-    public int questId;//current quest
-    public int questActionIndex; //current index on quest
-   
-    Dictionary<int, QuestData> questList;
+    public static QuestManager Instance;
 
-    #region Singleton
+    public int questId { get; private set; }
+    public int questActionIndex { get; private set; }
+    Dictionary<int, QuestData> questList = new Dictionary<int, QuestData>();
+
+    [SerializeField] private Text questText;
+    [SerializeField] private CanvasGroup CanvasGroup;
+
     private void Awake()
     {
-        if (instance == null)
-            instance = this;
-        else
-            Destroy(this);
+        if (Instance == null) Instance = this;
+        else Destroy(this);
 
-        questList = new Dictionary<int, QuestData>();
         GenerateData();
+        SubscribeEvents();
     }
-    static public QuestManager instance;
-    #endregion 
+
+    private void OnDestroy() {
+        UnSubscribeEvents();
+    }
+
+    private void SubscribeEvents() {
+        GameManager.Instance.OnStartGameEvent += Instance_OnStartGameEvent;
+    }
+    
+    private void UnSubscribeEvents() {
+        GameManager.Instance.OnStartGameEvent -= Instance_OnStartGameEvent;
+    }
+
+    private void Instance_OnStartGameEvent(object sender, System.EventArgs e) {
+        Invoke(nameof(UpdateQuestVisuals),0.8f);
+    }
+
+    public void ResetQuestProgress() {
+        questId = 10;
+        questActionIndex = 0;
+    }
+
+    public void LoadQuestProgress(int loadQuestId, int loadActionIndex) {
+        questId = loadQuestId;
+        questActionIndex = loadActionIndex;
+    }
 
     private void GenerateData()
     {
@@ -40,25 +66,23 @@ public class QuestManager : MonoBehaviour
         questList.Add(50, new QuestData("대장간 방문하기",
           new int[] { 3000, 2000, 3000, 4000, 2000 },
           new Location.MapNames[] { Location.MapNames.CityTop, Location.MapNames.CityTop, Location.MapNames.CityTop, Location.MapNames.CityBottom, Location.MapNames.CityBottom }));
-        questList.Add(60, new QuestData("몬스터 처치하기",
-          new int[] { 2000,4000 },
-          new Location.MapNames[] { Location.MapNames.CityBottom , Location.MapNames.CityBottom }));
-        questList.Add(70, new QuestData("루도와 공원에서 만나기",
-         new int[] { 3000,3000 },
-         new Location.MapNames[] { Location.MapNames.CityBottom, Location.MapNames.CityBottom }));
-        questList.Add(80, new QuestData("앞으로 나아가기",
-         new int[] { 5000,0 },
-         new Location.MapNames[] { Location.MapNames.Cave, Location.MapNames.Cave }));
+        questList.Add(60, new QuestData("앞으로 나아가기",
+          new int[] { 3000,0},
+          new Location.MapNames[] { Location.MapNames.CityBottom, Location.MapNames.CityBottom }));
+       
     }
+
     public void ResetAll()
     {
         questId = 10;
         questActionIndex = 0;
     }
+
     public int GetMapName()
     {
         return (int)questList[questId].location[questActionIndex];
     }
+
     public int GetQuestTalkIndex()
     {
         // GetQuestTalkIndex only called when in correct quest dialogue, so increment quest action index
@@ -76,25 +100,28 @@ public class QuestManager : MonoBehaviour
         return temp_quest + temp_index;
     }
 
-    public bool CheckQuest(int _id)
+  public bool CheckQuest(int _id)
     {
         bool flag = false;
 
         //if talking to correct npc and correct location, increment index 
-        if (_id == questList[questId].npcId[questActionIndex] && (int)PlayerManager.instance.currentMapName == GetMapName())
+        if (_id == questList[questId].npcId[questActionIndex] && (int)PlayerManager.Instance.CurrentMapName == GetMapName())
         {
             flag = true;
             //if beginning of quest, show quest name 
             if (questActionIndex == 0)
-                Debug.Log(string.Format("퀘스트: {0}",questList[questId].questName));
+                UpdateQuestVisuals();
         }
         return flag;
     }
 
-    public void CheckQuest()
+
+    public void UpdateQuestVisuals()
     {
-         Debug.Log(string.Format("퀘스트: {0}", questList[questId].questName));
+        CanvasGroup.alpha = 1f;
+        questText.text = questList[questId].questName;
     }
+
     public void ControlObject()
     {
         QuestObjectManager questObjectManager = FindObjectOfType<QuestObjectManager>();

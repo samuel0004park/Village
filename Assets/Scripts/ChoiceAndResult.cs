@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,16 +14,16 @@ public class ChoiceAndResult : MonoBehaviour
 
     [Header("Values")]
     [SerializeField]private bool instantDeath;
-    public bool choosing;
+    public bool choosing { get; private set; }
     public bool redo { get; private set; }
-    private string open_sound= "open_sound";
-    private string beep_sound= "beep_sound";
     private int result;
     public string type;
     public int[] itemID;
     public int[] requestNum;
     public int positiveChoice;
     public int revealItemID;
+
+    public static event EventHandler OnChoiceEvent;
 
     void Start()
     {
@@ -47,15 +48,15 @@ public class ChoiceAndResult : MonoBehaviour
         result = theChoice.GetResult();
 
         CheckChoice();
-
+        
         choosing = false;
-        PlayerManager.instance.interact = false; //set player's state to normal 
+        OnChoiceEvent?.Invoke(this, EventArgs.Empty);
 
         //if choice was negative, disable flag so can choose again 
         if (redo)
-            yield return new WaitForSeconds(0.5f);
-        
+            yield return new WaitForSeconds(1f);
     }
+
     private void CheckChoice()
     {
         //if correct choice
@@ -81,17 +82,16 @@ public class ChoiceAndResult : MonoBehaviour
             }
         }
     }
+
     private void NegativeResult()
     {
         // if instant death, kill player, if not, enable redo
         if (instantDeath)
-            PlayerStat.instance.Die();
+            PlayerManager.Instance.playerStat.Die();
         else
-        {
-            AudioManager.instance.Play(beep_sound);
             redo = true;
-        }
     }
+
     private bool Request()
     {
         //if there is no request item, return true
@@ -102,9 +102,10 @@ public class ChoiceAndResult : MonoBehaviour
         //check for requested item/items
         for (int i = 0; i < itemID.Length; i++)
         {
-            int temp = theInven.LookFor(itemID[i]);
+            var item = theInven.LookForItem(itemID[i]);
+            int itemCount = item !=null? item.itemCount:0;
 
-            if (temp < requestNum[i]) // if there are not enough of item, return false
+            if (itemCount < requestNum[i]) // if there are not enough of item, return false
                 return false;    
         }
         //return true if enough items
@@ -126,25 +127,36 @@ public class ChoiceAndResult : MonoBehaviour
             case "Reveal":
                 RevealChoice();
                 break;
+            case "Remove":
+                RemoveChoice();
+                break;
             default:
                 break;
         }
         CheckShrine();
     }
+
     private void RevealChoice()
     {
         if (revealItemID != -1)
             FindObjectOfType<QuestObjectManager>().ShowQuestObject(revealItemID);
     }
+
     private void FenceChoice()
     {
         //continue only if fence exists
         OpenFence theFence = GetComponent<OpenFence>();
         if (theFence == null)
             return;
-
         theFence.Open();
+    }
 
+
+    private void RemoveChoice() {
+        BoxCollider2D boxCollider2D = GetComponent<BoxCollider2D>();
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        boxCollider2D.enabled = false;
+        spriteRenderer.enabled = false;
     }
 
     private void GiftChoice()
@@ -153,17 +165,10 @@ public class ChoiceAndResult : MonoBehaviour
     }
     private void CheckShrine()
     {
-        if(theDialogue.id < 100)
+        if(theDialogue.GetID() < 100)
         {
-            GameObject player = GameObject.Find("Player");
-            SaveNLoad save = player.GetComponent<SaveNLoad>();
-            save.Save();
+            SaveNLoad.Instance.Save();
         }
     }
-    private void ExitChoice()
-    {
-        OrderManager.instance.ContinueMove();
-        PlayerManager.instance.interact = false; //set player's state to normal 
-    }
-
+   
 }

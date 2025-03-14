@@ -4,11 +4,44 @@ using UnityEngine;
 
 public class FadeManager : MonoBehaviour
 {
+    public static FadeManager Instance;
+    
     public SpriteRenderer white;
     public SpriteRenderer black;
 
     private Color color;
     private WaitForSeconds waitTime = new WaitForSeconds(0.01f);
+
+    private void Awake() {
+        if (Instance == null) {
+            Instance = this;
+        }
+        else {
+            Destroy(Instance.gameObject);
+        }
+    }
+
+
+    private void Start() {
+        SubscribeEvents();
+    }
+
+    private void OnDestroy() {
+        UnSubscribeEvents();
+    }
+
+
+    private void SubscribeEvents() {
+        GameManager.Instance.OnStartGameEvent += Instance_OnStartGameEvent;
+    }
+
+    private void UnSubscribeEvents() {
+        GameManager.Instance.OnStartGameEvent -= Instance_OnStartGameEvent;
+    }
+
+    private void Instance_OnStartGameEvent(object sender, System.EventArgs e) {
+        FadeIn();
+    }
 
     public void FadeOut(float _speed = 0.02f)
     {

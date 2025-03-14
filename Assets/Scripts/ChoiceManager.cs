@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,50 +6,54 @@ using UnityEngine.UI;
 
 public class ChoiceManager : MonoBehaviour
 {
-    #region Singleton
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            DontDestroyOnLoad(this.gameObject); //prevent player gameobject from beying destroyed when loaded in other scene
-            instance = this;
-        }
-        else
-            Destroy(this.gameObject);
+   
 
-    }
-    #endregion Singleton
-    static public ChoiceManager instance;
+    static public ChoiceManager Instance;
 
-    [Header("References")]
-    public Animator anim;
-    public GameObject go; //to disable choice screen when not needed;
-    public Text question_Text; //question panel's text
-    public Text[] answer_Text; // answer panels' text
-    public GameObject[] answer_Panel; //answer panel gameobject
+    [SerializeField] private Animator anim;
+    [SerializeField] private CanvasGroup CanvasGroup;
+    [SerializeField] private Text question_Text; 
+    [SerializeField] private Text[] answer_Text; 
+    [SerializeField] private GameObject[] answer_Panel;
 
+    public bool choiceIng { get; private set; } 
     private string question; //question from choice class
+    private bool enableKeyInput; 
+    private int count; 
+    private int choiceNumber;
 
-    [Header("Values")]
-    public bool choiceIng; //bool var to determine if choosing to stop other movement
-    private bool keyInput; //enable keyinput or movement
-    private int count; //size of list
-    private int result; //the choice #
+    private List<string> answerList;
 
-    public string keySound;
-    public string enterSound;
-    private List<string> answerList; //list of answers from choice clas
-
+    public event EventHandler OnKeyEnterEvent; 
+    public event EventHandler OnPressEnterEvent; 
 
     private WaitForSeconds waitTime = new WaitForSeconds(0.01f);
 
+    private void Awake() {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
+    }
 
     void Start()
     {
-        //initiate list and texts
+        HideVisuals();
+        SetUp();
+    }
+
+    private void Update() {
+        if (!enableKeyInput) return;
+
+        if (Input.GetKeyDown(KeyCode.UpArrow)) ChangeSelection(-1);
+        else if (Input.GetKeyDown(KeyCode.DownArrow)) ChangeSelection(1);
+        else if (Input.GetKeyDown(KeyCode.Z)) SelectOption();
+    }
+
+
+    private void SetUp() {
         answerList = new List<string>();
-        for(int i = 0; i < answer_Text.Length; i++)
-        {
+        for (int i = 0; i < answer_Text.Length; i++) {
             answer_Text[i].text = "";
             answer_Panel[i].SetActive(false);
         }
@@ -57,12 +62,11 @@ public class ChoiceManager : MonoBehaviour
 
     public void ShowChoice(Choice _choice)
     {
-        choiceIng = true;
-        go.SetActive(true);
-        //initiate, set result to 0 and choiceing to true
-        result = 0;
-        //load question from custom class
+        ShowVisuals();
+
+        choiceNumber = 0;
         question = _choice.question;
+        
         //load answers by adding to list and activate corresponding answer panel
         for(int i = 0; i < _choice.answers.Length; i++)
         {
@@ -71,8 +75,8 @@ public class ChoiceManager : MonoBehaviour
             count = i;
         }
         anim.SetBool("Appear", true);
+        
         Selection();
-        //start coroutine to show the panels
         StartCoroutine(ChoiceCoroutine());
     }
 
@@ -86,12 +90,12 @@ public class ChoiceManager : MonoBehaviour
         }
         question_Text.text = "";
         answerList.Clear();
+
         //close animation
         anim.SetBool("Appear", false);
-        //allow other movement
-        yield return new WaitForSeconds(0.5f);
-        go.SetActive(false);
-        choiceIng = false;
+
+        yield return new WaitForSeconds(1f);
+        HideVisuals();
     }
 
     IEnumerator ChoiceCoroutine()
@@ -105,13 +109,11 @@ public class ChoiceManager : MonoBehaviour
             StartCoroutine(TypeAnswer_1());
         if (count >= 2)
             StartCoroutine(TypeAnswer_2());
-        if (count >= 3)
-            StartCoroutine(TypeAnswer_3());
-
+ 
         yield return new WaitForSeconds(0.7f);
 
         //toggle to true so it can move and choose option
-        keyInput = true;
+        enableKeyInput = true;
     }
 
     IEnumerator TypeQuestion()
@@ -121,7 +123,7 @@ public class ChoiceManager : MonoBehaviour
             question_Text.text += question[i];
             if (i % 10 == 1)
             {
-                AudioManager.instance.Play(enterSound);
+                OnPressEnterEvent?.Invoke(this, EventArgs.Empty);
             }
             yield return waitTime;
         }
@@ -154,53 +156,37 @@ public class ChoiceManager : MonoBehaviour
             yield return waitTime;
         }
     }
-    IEnumerator TypeAnswer_3()
-    {
-        yield return new WaitForSeconds(0.7f);
-        for (int i = 0; i < answerList[3].Length; i++)
-        {
-            answer_Text[3].text += answerList[3][i];
-            yield return waitTime;
-        }
+
+
+    public void HideVisuals() {
+        choiceIng = false;
+        CanvasGroup.interactable = false;
+        CanvasGroup.alpha = 0f;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (keyInput)
-        {
-            //keydown and up to move choice options
-            if (Input.GetKeyDown(KeyCode.UpArrow))
-            {
-                AudioManager.instance.Play(keySound);
-                if (result > 0)
-                    result--;
-                else
-                    result = count;
-                Selection();
-            }
-            else if (Input.GetKeyDown(KeyCode.DownArrow))
-            {
-                AudioManager.instance.Play(keySound);
-                if (result < count)
-                    result++;
-                else
-                    result = 0;
-                Selection();
-            }
-            //z to select option
-            else if (Input.GetKeyDown(KeyCode.Z))
-            {
-                AudioManager.instance.Play(enterSound);
-                keyInput = false;
-                StartCoroutine(ExitChoice());
-            }
-        }
+    public void ShowVisuals() {
+        choiceIng = true;
+        CanvasGroup.interactable = true;
+        CanvasGroup.alpha = 1f;
     }
+
+    private void ChangeSelection(int direction) {
+        OnKeyEnterEvent?.Invoke(this, EventArgs.Empty);
+
+        choiceNumber = (choiceNumber + direction + count + 1) % (count + 1);
+        Selection();
+    }
+
+    private void SelectOption() {
+        OnPressEnterEvent?.Invoke(this, EventArgs.Empty);
+        enableKeyInput = false;
+        StartCoroutine(ExitChoice());
+    }
+
     public int GetResult()
     {
-        int temp = result;
-        result = 0;
+        int temp = choiceNumber;
+        choiceNumber = 0;
         return temp;
     }
     private void Selection()
@@ -213,6 +199,6 @@ public class ChoiceManager : MonoBehaviour
             answer_Panel[i].GetComponent<Image>().color = temp;
         }
         temp.a = 1f;
-        answer_Panel[result].GetComponent<Image>().color = temp;
+        answer_Panel[choiceNumber].GetComponent<Image>().color = temp;
     }
 }

@@ -49,9 +49,12 @@ public static class SaveSystem
                 temp = mostRecentFile;
                 mostRecentFile = fileInfo;
                 File.Delete(temp.FullName);
+                File.Delete(temp.FullName + ".meta");
             }
-            else //if there is an older file, remove 
+            else {
+                File.Delete(fileInfo.FullName + ".meta");
                 File.Delete(fileInfo.FullName);
+            }
         }
 
         //if there is a most recent, then return the string

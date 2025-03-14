@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dabf27aaf1001f64e85990cfe95670fa, type: 3}
+  m_Name: OlderBrotherMemories
+  m_EditorClassIdentifier: 
+  itemID: 30008
+  itemName: "\uD615\uC758 \uAE30\uC5B5"
+  itemDescription: "\uC790\uC2E0\uC744 \uC704\uD574\uC11C \uD76C\uC0DD\uD558\uB294
+    \uB3D9\uC0DD\uC744 \uBC14\uB77C\uBCF4\uB294 \uC2AC\uD514\uC774 \uB2F4\uAE34 \uAE30\uC5B5\uC774\uB2E4"
+  itemIcon: {fileID: 21300000, guid: 10e470a260fe5da41a1f37b18d2c22e1, type: 3}
+  itemType: 1
+  useDescriptionTop: 
+  useDescriptionBottom: 

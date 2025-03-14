@@ -1,60 +1,58 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class SceneTransfer : MonoBehaviour
 {
-    [Header("References")]
-    public string lookDirection;
-    private PlayerManager thePlayer;
-    private FadeManager theFade;
-    public Transform target;
-    public BoxCollider2D targetBound;
-    private OrderManager theOrder;
+    [SerializeField] private Vector3Int targetVector;
+    [SerializeField] private Grid targetGrid;
+    [SerializeField] private BoxCollider2D targetBound;
+    [SerializeField] private Location.MapNames transferMapName; //destination name the player will be transfered to 
+    
     private CameraManager theCamera;
 
-    public Location.MapNames transferMapName; //destination name the player will be transfered to 
+    public static event EventHandler<OnSceneTransferEventArgs> OnSceneTransferEvent;
+    public class OnSceneTransferEventArgs : EventArgs {
+        public bool isTransfering;
+    }
 
     private void Start()
     {
-        thePlayer = FindObjectOfType<PlayerManager>();
         theCamera = FindObjectOfType<CameraManager>();
-        theOrder = FindObjectOfType<OrderManager>();
-        theFade = FindObjectOfType<FadeManager>();
     }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.name == "Player")
+        if (collision.gameObject.tag == "Player")
         {
             //change the name of the currentMapName to the destination name
-            thePlayer.currentMapName = transferMapName;
+            PlayerManager.Instance.SetLocationInfo(PlayerManager.Instance.currentSceneName, transferMapName);
 
             StartCoroutine(TransferCoroutine());
         }
     }
+
     IEnumerator TransferCoroutine()
     {
-        theOrder.PreLoadCharacter();
+
         //stop player movement and fade out scene
-        theOrder.ForceStop(1);
-        theFade.FadeOut();
+        OnSceneTransferEvent?.Invoke(this, new OnSceneTransferEventArgs { isTransfering = true });
+        FadeManager.Instance.FadeOut();
 
         yield return new WaitForSeconds(0.7f);
 
         //set new camera position and bound for tarnfering in same scene
-        theCamera.transform.position = new Vector3(target.transform.position.x, target.transform.position.y, theCamera.transform.position.z);
+        theCamera.transform.position = new Vector3(targetVector.x, targetVector.y, theCamera.transform.position.z);
         theCamera.SetBound(targetBound);
 
-        //move player to new point in scene
-        if(lookDirection!="")
-            theOrder.Turn("player", lookDirection);
-        thePlayer.transform.position = target.transform.position;
+        PlayerManager.Instance.PlayerMovement.PlaceAtStartPoint(targetGrid,targetVector);
 
-        yield return new WaitForSeconds(0.5f);//wait so fade in does not occur instantly
-        //fadein and let player move
-        theFade.FadeIn();
         yield return new WaitForSeconds(0.5f);
-        theOrder.ContinueMove();
+        FadeManager.Instance.FadeIn();
+
+        yield return new WaitForSeconds(0.5f);
+        OnSceneTransferEvent?.Invoke(this, new OnSceneTransferEventArgs { isTransfering = false });
     }
 
 

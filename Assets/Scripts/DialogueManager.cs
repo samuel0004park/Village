@@ -1,69 +1,59 @@
- using System.Collections;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class DialogueManager : MonoBehaviour
 {
-    #region Singleton
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            DontDestroyOnLoad(this.gameObject);
-            instance = this;
-        }
-        else
-            Destroy(this.gameObject);
-    }
-    #endregion Singleton
-    static public DialogueManager instance;
+    static public DialogueManager Instance;
 
     //matches key to specific data 
-    [Header("Dictionary")]
-    Dictionary<int, string[]> talkData;
-    Dictionary<int, Sprite> portraitData;
+    private Dictionary<int, string[]> talkData;
+    private Dictionary<int, Sprite> portraitData;
 
     //Array to store all portraits
-    public Sprite[] portraitArray;
+    [SerializeField] private Sprite[] portraitArray;
 
-    [Header("Lists for Live time Dialgue")]
+    // Lists for Live time Dialgue
     private List<string> listSentences;
     private List<Sprite> listSprites;
     private List<Sprite> listDialogueWindows;
 
-    [Header("Variables")]
-    private int count; //var to keep track of page
-    public bool talking = false; //var so pressing z only works when talking
-    private bool keyActivated = false;//key to disable and enable key input
-    public string enterSound;
+    public bool talking { get; private set; }
+    private int page; 
+    private bool keyActivated;
 
-    [Header("References")]
-    public Animator animSprite; 
-    public Animator animDialogueWindow;
-    private Image image;
-    private Image dialogueWindow;
-    private TypeEffect theType;
-    public Sprite defaultDialogueWindow;
 
+    [SerializeField] private Animator animSprite;
+    [SerializeField] private Animator animDialogueWindow;
+    [SerializeField] private Image image;
+    [SerializeField] private Image dialogueWindow;
+    [SerializeField] private TypeEffect theType;
+
+
+    private void Awake() {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(this.gameObject);
+    }
 
     void Start()
     {
-        //get components
-        theType = transform.Find("Dialogue Manager/Dialogue Window/Dialogue").GetComponent<TypeEffect>();
-        image = transform.Find("Dialogue Manager/Image").GetComponent<Image>();
-        dialogueWindow = transform.Find("Dialogue Manager/Dialogue Window").GetComponent<Image>();
-        theType = FindObjectOfType<TypeEffect>();
+        SetUp();
 
+        GenerateData();
+    }
+
+    private void SetUp() {
         //initialize list and dictionary
-        count = 0;
+        page = 0;
         listSentences = new List<string>();
         listSprites = new List<Sprite>();
         listDialogueWindows = new List<Sprite>();
         talkData = new Dictionary<int, string[]>();
         portraitData = new Dictionary<int, Sprite>();
-
-        GenerateData();
     }
 
     public void GenerateData()
@@ -171,12 +161,8 @@ public class DialogueManager : MonoBehaviour
         talkData.Add(51 + 2000, new string[] { "너 거기서 멀뚱멀뚱 뭐하고 있어?:2","손이 있으면 어디서 장작 10개 좀 구해봐!:3"});
         talkData.Add(52 + 3000, new string[] { "루...루나? 여기서 뭐하고 있어?!:3", "(루나는 아무런 반응이 없다):3", "어째서...:0" });
         talkData.Add(53 + 4000, new string[] { "화로에서 떨어져나온 파편이다." });
-        talkData.Add(54 + 2000, new string[] { "마침 손이 부족했는데 도와줘서 고마워!:1" });
-        talkData.Add(60 + 2000, new string[] { "사실은 말이야 주민들한테서 요즘 마물이 자주 나타난다는 소리를 들었어.:3","대가는 지불해줄태니까 혹시 대신 마물들을 처리해줄 수 있을까?:1","슬라임 핵 5개면 주민들이 안심할 수 있을 거야.:2" });
-        talkData.Add(61 + 4000, new string[] { "도아줘서 정말 고마워! 이건 내가 약속했던 보상이야.", "아 맞다! 루도라는 사람이 공원에서 기다리고 있다고 했어." });
-        talkData.Add(70 + 3000, new string[] { "미안 여기까지 오게 해서 .... 루나는 기억을 잊어버린 것 같아.:2", "난 이제 어쩌면 좋지?:0" });
-        talkData.Add(71 + 3000, new string[] { "아? 이거. 오면서 찾은 해바라기야.:0", "이건 너한테 줄게. 앞으로 나아갈 너가 가지고 있는게 좋을 것 같아.:1","난 이곳에 루나랑 남아 있을게...:2" });
-        talkData.Add(80 + 5000, new string[] { "약속을 지키러 왔나 냐옹~?","앞에는 많은 시련이 기다린다 냐오옥!","건투를 빈다 냐옹."});
+        talkData.Add(54 + 2000, new string[] { "도아줘서 정말 고마워! 이건 내가 약속했던 보상이야.:1", "아 맞다! 루도라는 사람이 찾고 있어.:1" });
+        talkData.Add(60 + 3000, new string[] { "미안 여기까지 오게 해서 .... 루나는 기억을 잊어버린 것 같아.:2", "난 이제 어쩌면 좋지?:0", "아 맞다. 고양이가 여기까지 우릴 따라온 것 같아.:0", "한번 가보는거 어때? 난 이곳에 루나랑 남아 있을게...:2" });
 
 
         //add portrait to array
@@ -248,7 +234,6 @@ public class DialogueManager : MonoBehaviour
 
         //show default dialogue panel
         animDialogueWindow.SetBool("Appear", false);
-        dialogueWindow.sprite = defaultDialogueWindow;
         animDialogueWindow.SetBool("Appear", true);
 
         /* for dialgue window change
@@ -266,13 +251,13 @@ public class DialogueManager : MonoBehaviour
         //if npctalk, change portrait if different 
         if (listSprites.Count!=0)
         {
-            if (count > 0)
+            if (page > 0)
             {
-                if (listSprites[count] != listSprites[count - 1])
+                if (listSprites[page] != listSprites[page - 1])
                 {
                     animSprite.SetBool("Change", true);
                     yield return new WaitForSeconds(0.1f);
-                    image.sprite = listSprites[count];
+                    image.sprite = listSprites[page];
                     animSprite.SetBool("Change", false);
                 }
                 //when no change
@@ -281,11 +266,11 @@ public class DialogueManager : MonoBehaviour
             }
             else
             {
-                image.sprite = listSprites[count];
+                image.sprite = listSprites[page];
             }
         }
 
-        theType.SetMsg(listSentences[count]);
+        theType.SetMsg(listSentences[page]);
         yield return new WaitForSeconds(0.01f);
 
         keyActivated = true;
@@ -294,7 +279,7 @@ public class DialogueManager : MonoBehaviour
     private void ExitDialogue()
     {
         //clear all used variables and lists and mend all ends
-        count = 0;
+        page = 0;
         //clear list
         listSentences.Clear();
         listSprites.Clear();
@@ -303,8 +288,7 @@ public class DialogueManager : MonoBehaviour
         animSprite.SetBool("Appear", false);
         animDialogueWindow.SetBool("Appear", false);
         talking = false;
-        PlayerManager.instance.interact = false; //set player's state to normal 
-    } 
+    }
 
     private void Update()
     {
@@ -317,12 +301,11 @@ public class DialogueManager : MonoBehaviour
                 return;
             }
             keyActivated = false;
-            count++;
+            page++;
 
-            AudioManager.instance.Play(enterSound);
 
             //if end of talk, then stop all coroutine and exit dialogue
-            if (count == listSentences.Count)
+            if (page == listSentences.Count)
             {
                 StopAllCoroutines();
                 ExitDialogue();

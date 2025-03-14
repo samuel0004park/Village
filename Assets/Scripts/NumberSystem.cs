@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,32 +6,37 @@ using UnityEngine.UI;
 
 public class NumberSystem : MonoBehaviour
 {
-    [Header("Audio")]
-    private string key_sound= "switch_sound";
-    private string enter_sound= "enter_sound";
-    private string cancel_sound = "cancel_sound";
-    private string correct_sound= "open_sound";
 
-    [Header("Variables")]
+    public static NumberSystem Instance;
+
+    public bool activated { get; private set; }
+    public bool correctFlag { get; private set; }
+
     private int correctNumber;
-    private int count; //size of array (ex. 1000 is 3)
-    private int selectedTextBox; //the location of current selected box
-    private int result; //player answer
+    private int count; 
+    private int selectedTextBox;
+    private int result;
     private string tempNumber;
+    private bool keyInput;
 
-    [Header("References")]
-    public GameObject superObject;
-    public GameObject[] panel;
-    public Text[] Number_Text;
+    [SerializeField] private GameObject superObject;
+    [SerializeField] private GameObject[] panel;
+    [SerializeField] private Text[] Number_Text;
+    [SerializeField] private Animator anim;
 
-    public Animator anim;
 
-    //public float space;
+    public event EventHandler OnNumberSystemSwitchEvent;
+    public event EventHandler<OnNumberSystemEnterAnswerEventArgs> OnNumberSystemEnterAnswerEvent;
+    public class OnNumberSystemEnterAnswerEventArgs : EventArgs {
+        public bool isCorrect;
+    }
 
-    public bool activated; //to stop other player movement
-    private bool keyInput; //to enable keyinput or movement
-
-    private bool correctFlag;
+    private void Awake() {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
+    }
 
     public void ShowNumber(int _correctNumber)
     {
@@ -51,121 +57,57 @@ public class NumberSystem : MonoBehaviour
             Number_Text[i].text = "0";
         }
 
-        //move panel to center depending on length of answer
-        //superObject.transform.position = new Vector3(superObject.transform.position.x + space * count, superObject.transform.position.y, superObject.transform.position.z);
-
-        //show panel and allow keyInput
-        AudioManager.instance.Play(enter_sound);
         SetColor();
         anim.SetBool("Appear", true);
         StartCoroutine(WaitCoroutine());
     }
+
     IEnumerator WaitCoroutine()
     {
         yield return new WaitForSeconds(0.5f);
         keyInput = true;
     }
-    public void SetNumber(string _arrow)
-    {
-        //increment or decrement selected number
 
-        int temp = int.Parse(Number_Text[selectedTextBox].text);
 
-        if(_arrow == "Down")
-        {
-            if (temp == 0)temp = 9;
-            else temp--;
-        }
-        else if (_arrow == "Up")
-        {
-            if (temp == 9) temp = 0;
-            else temp++;
+    private void Update() {
+        if (!keyInput) return;
 
-        }
-
-        Number_Text[selectedTextBox].text = temp.ToString();
-    }
-    private void SetColor()
-    {
-        //change alpha value of all panels other than selected panel
-        Color temp = Number_Text[0].color;
-        temp.a = 0.3f;
-        for(int i = 0; i <= count; i++)
-        {
-            Number_Text[i].color = temp;
-        }
-        temp.a = 1f;
-        Number_Text[selectedTextBox].color = temp;
+        if (Input.GetKeyDown(KeyCode.DownArrow)) HandleNumberChange("Down");
+        else if (Input.GetKeyDown(KeyCode.UpArrow)) HandleNumberChange("Up");
+        else if (Input.GetKeyDown(KeyCode.RightArrow)) MoveSelection(-1);
+        else if (Input.GetKeyDown(KeyCode.LeftArrow)) MoveSelection(1);
+        else if (Input.GetKeyDown(KeyCode.Z)) SubmitAnswer();
+        else if (Input.GetKeyDown(KeyCode.X)) CancelInput();
     }
 
-    private void Update()
-    {
-        if (keyInput)
-        {
-            //decrement number
-            if (Input.GetKeyDown(KeyCode.DownArrow))
-            {
-                AudioManager.instance.Play(key_sound);
-                SetNumber("Down");
-            }
-            //increment number
-            else if (Input.GetKeyDown(KeyCode.UpArrow))
-            {
-                AudioManager.instance.Play(key_sound);
-                SetNumber("Up");
-            }
-            //move right
-            else if (Input.GetKeyDown(KeyCode.RightArrow))
-            {
-                AudioManager.instance.Play(key_sound);
-                if (selectedTextBox > 0)
-                    selectedTextBox--;
-                else
-                    selectedTextBox = count;
-                SetColor();
-            }
-            //move left
-            else if (Input.GetKeyDown(KeyCode.LeftArrow))
-            {
-                AudioManager.instance.Play(key_sound);
-                if (selectedTextBox < count)
-                    selectedTextBox++;
-                else
-                    selectedTextBox = 0;
-                SetColor();
-            }
-            //enter answer to check if true
-            else if (Input.GetKeyDown(KeyCode.Z))
-            {
-                AudioManager.instance.Play(enter_sound);
-                keyInput = false;
-                StartCoroutine(OXCoroutine());
-            }
-            //cancel number pad 
-            else if (Input.GetKeyDown(KeyCode.X))
-            {
-                AudioManager.instance.Play(cancel_sound);
-                keyInput = false;
-                StartCoroutine(ExitCoroutine());
-            }
-        }
+    private void HandleNumberChange(string direction) {
+        OnNumberSystemSwitchEvent?.Invoke(this, EventArgs.Empty);
+        SetNumber(direction);
     }
 
-    public bool GetResult()
-    {
-        return correctFlag;
+    private void MoveSelection(int direction) {
+        OnNumberSystemSwitchEvent?.Invoke(this, EventArgs.Empty);
+
+        selectedTextBox = (selectedTextBox + direction + count + 1) % (count + 1);
+        SetColor();
     }
+
+    private void SubmitAnswer() {
+        keyInput = false;
+        StartCoroutine(OXCoroutine());
+    }
+
+    private void CancelInput() {
+        OnNumberSystemEnterAnswerEvent?.Invoke(this, new OnNumberSystemEnterAnswerEventArgs { isCorrect = false });
+        keyInput = false;
+        StartCoroutine(ExitCoroutine());
+    }
+
+
 
     IEnumerator OXCoroutine()
     {
-        //change back to original alpha value for all panels
-        Color temp = Number_Text[0].color;
-        temp.a = 1f;
-        for (int i = count; i >=0; i--)
-        {
-            Number_Text[i].color = temp;
-            tempNumber += Number_Text[i].text;
-        }
+        ResetColor();
         // wait a little
         yield return new WaitForSeconds(1f);
 
@@ -174,12 +116,12 @@ public class NumberSystem : MonoBehaviour
 
         if (result == correctNumber)
         {
-            AudioManager.instance.Play(correct_sound);
+            OnNumberSystemEnterAnswerEvent?.Invoke(this, new OnNumberSystemEnterAnswerEventArgs { isCorrect = true });
             correctFlag = true;
         }
         if (result != correctNumber)
         {
-            AudioManager.instance.Play(cancel_sound);
+            OnNumberSystemEnterAnswerEvent?.Invoke(this, new OnNumberSystemEnterAnswerEventArgs { isCorrect = false });
             correctFlag = false;
         }
 
@@ -189,15 +131,12 @@ public class NumberSystem : MonoBehaviour
   
     IEnumerator ExitCoroutine()
     {
-        Debug.Log("Our answer" + result+ " / Correct Answer:" + correctNumber);
-
         //reset used values
         selectedTextBox = 0;
         result = 0;
         tempNumber = "";
         anim.SetBool("Appear", false);
 
-        //wait a little for animation to end and then disable panels 
         yield return new WaitForSeconds(0.1f);
 
         for (int i = 0; i < count; i++)
@@ -205,9 +144,43 @@ public class NumberSystem : MonoBehaviour
             panel[i].SetActive(false);
         }
         activated = false;
+    }
 
-        //move panel to original position   
-        //superObject.transform.position = new Vector3(superObject.transform.position.x - space * count, superObject.transform.position.y, superObject.transform.position.z);
+    public void SetNumber(string _arrow) {
+        //increment or decrement selected number
+        int temp = int.Parse(Number_Text[selectedTextBox].text);
 
+        if (_arrow == "Down") {
+            if (temp == 0) temp = 9;
+            else temp--;
+        }
+        else{
+            if (temp == 9) temp = 0;
+            else temp++;
+        }
+
+        Number_Text[selectedTextBox].text = temp.ToString();
+    }
+
+
+    private void ResetColor() {
+        //change back to original alpha value for all panels
+        Color temp = Number_Text[0].color;
+        temp.a = 1f;
+        for (int i = count; i >= 0; i--) {
+            Number_Text[i].color = temp;
+            tempNumber += Number_Text[i].text;
+        }
+    }
+
+    private void SetColor() {
+        //change alpha value of all panels other than selected panel
+        Color temp = Number_Text[0].color;
+        temp.a = 0.3f;
+        for (int i = 0; i <= count; i++) {
+            Number_Text[i].color = temp;
+        }
+        temp.a = 1f;
+        Number_Text[selectedTextBox].color = temp;
     }
 }

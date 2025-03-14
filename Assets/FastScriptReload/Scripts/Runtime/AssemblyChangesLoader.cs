@@ -227,7 +227,7 @@ namespace FastScriptReload.Runtime
         }
 #pragma warning disable 0618
         [Obsolete("Needed for network serialization")]
-#pragma warning enable 0618
+#pragma warning disable 0618
         public AssemblyChangesLoaderEditorOptionsNeededInBuild()
         {
         }

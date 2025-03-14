@@ -20,6 +20,6 @@ public class TrapActivated : MonoBehaviour
             theQuest.ShowQuestObject(id);
 
         }
-        PlayerStat.instance.Die();
+        PlayerManager.Instance.playerStat.Die();
     }
 }

@@ -4,32 +4,41 @@ using UnityEngine;
 
 public class BGMManager : MonoBehaviour
 {
-    static public BGMManager instance;
+    static public BGMManager Instance;
 
-    //BGM music clips
-    public AudioClip[] clips;
+    [SerializeField] private AudioClip[] clips;
+    [SerializeField] private AudioSource audioSource;
 
-    private AudioSource audioSource;
-
-    //single wait time to be used to enhance performance (avoid creating new waitforsec every iteration)
     private WaitForSeconds waitTime = new WaitForSeconds(0.01f);
 
     private void Awake()
     {
-        if (instance == null)
-        {
-            DontDestroyOnLoad(this.gameObject);
-            instance = this;
-        }
-        else
-            Destroy(gameObject);
-    }
-    void Start()
-    {
-        audioSource =GetComponent<AudioSource>();
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
     }
 
-    public void Play(int _playMusicTrack, float _volume=1f)
+    private void Start() {
+        SubscribeEvents();
+    }
+
+    private void OnDestroy() {
+        UnSubscribeEvents();
+    }
+
+    private void SubscribeEvents() {
+        GameManager.Instance.OnStartGameEvent += Instance_OnStartGameEvent;
+    }
+
+    private void UnSubscribeEvents() {
+        GameManager.Instance.OnStartGameEvent -= Instance_OnStartGameEvent;
+
+    }
+
+    private void Instance_OnStartGameEvent(object sender, System.EventArgs e) {
+        PlayBgm(0, 0.25f);
+    }
+
+    public void PlayBgm(int _playMusicTrack, float _volume=1f)
     {
         audioSource.volume = _volume;
         audioSource.clip = clips[_playMusicTrack];

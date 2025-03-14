@@ -12,15 +12,13 @@ public class InventorySlot : MonoBehaviour
 
     public void Additem(Item _item)
     {
-        itemName_Text.text = _item.itemName;
-        icon.sprite = _item.itemIcon;
-        if (Item.ItemType.Use == _item.itemType || Item.ItemType.ETC == _item.itemType || Item.ItemType.Quest == _item.itemType)
-        {
-            if (_item.itemCount > 0)
-                itemCount_Text.text = "x " + _item.itemCount.ToString();
-            else
-                itemCount_Text.text = "";
-        }
+        itemName_Text.text = _item.ItemSO.itemName;
+        icon.sprite = _item.ItemSO.itemIcon;
+
+        if (_item.itemCount > 0)
+            itemCount_Text.text = "x " + _item.itemCount.ToString();
+        else
+            itemCount_Text.text = "";
     }
 
     public void RemoveItem()
