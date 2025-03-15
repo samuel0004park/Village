@@ -6,9 +6,9 @@ using UnityEngine.UI;
 
 public class PlayerStat : MonoBehaviour {
     
-    private const int RECOVER_STAMINA = 3;
+    private const int RECOVER_STAMINA = 1;
     public const int MAX_STAMINA = 100;
-    public const int MAX_HP = 3;
+    public const int MAX_HP = 1;
 
     public int currentHp { get; private set; }
     public int currentStamina { get; private set; }
@@ -125,7 +125,6 @@ public class PlayerStat : MonoBehaviour {
         {
             colliders[i].enabled = false;
         }
-        //playerMovingObject.TriggerDie_Animation();
 
         OnPlayerKilledEvent?.Invoke(this, EventArgs.Empty);
         OnPlayerHeartBeatEvent?.Invoke(this, new OnPlayerHeartBeatEventArgs { currentStamina = 0, currentLifeCount = 0 });

@@ -27,8 +27,10 @@ public class PlayerMovement : MonoBehaviour {
 
    
     private void Update() {
-        if(!playerStat.isDead && GameManager.Instance.isLive)
-            HandleInput();
+        if(!playerStat.isDead && GameManager.Instance.isLive) {
+            HandlePressInput();
+            HandleReleaseInput();
+        }
     }
 
     public Vector3Int GetGridPosition() {
@@ -50,7 +52,7 @@ public class PlayerMovement : MonoBehaviour {
         movingObject.SnapObjectToGrid(targetCell);
     }
 
-    private void HandleInput() {
+    private void HandlePressInput() {
         Vector3Int moveDirection = Vector3Int.zero;
         bool doRun = false;
         if (Input.GetKey(KeyCode.UpArrow)) moveDirection = Vector3Int.up;
@@ -73,6 +75,17 @@ public class PlayerMovement : MonoBehaviour {
         }
     }
 
+    private void HandleReleaseInput() {
+        bool result = false;
+        if (Input.GetKeyUp(KeyCode.UpArrow)) result = true;
+        else if (Input.GetKeyUp(KeyCode.DownArrow)) result = true;
+        else if (Input.GetKeyUp(KeyCode.LeftArrow)) result = true;
+        else if (Input.GetKeyUp(KeyCode.RightArrow)) result = true;
+
+        if (result)
+            movingObject.InvokeStopAnimationEvent();
+    }
+
 
     private void SubscribeEvents() {
         Inventory.Instance.OnInventoryStateChangedEvent += Instance_OnInventoryStateChangedEvent;
@@ -81,9 +94,9 @@ public class PlayerMovement : MonoBehaviour {
         StartPoint.OnStartMoveEvent += StartPoint_OnStartMoveEvent;
         ObjectDialogue.OnObjectDialogueStateChangedEvent += ObjectDialogue_OnObjectDialogueStateChangedEvent;
         SceneTransfer.OnSceneTransferEvent += SceneTransfer_OnSceneTransferEvent;
+        PlayerStat.OnPlayerKilledEvent += PlayerStat_OnPlayerKilledEvent;
     }
 
-   
 
     private void UnSubscribeEvents() {
         Inventory.Instance.OnInventoryStateChangedEvent -= Instance_OnInventoryStateChangedEvent;
@@ -92,9 +105,13 @@ public class PlayerMovement : MonoBehaviour {
         StartPoint.OnStartMoveEvent -= StartPoint_OnStartMoveEvent;
         ObjectDialogue.OnObjectDialogueStateChangedEvent -= ObjectDialogue_OnObjectDialogueStateChangedEvent;
         SceneTransfer.OnSceneTransferEvent -= SceneTransfer_OnSceneTransferEvent;
+        PlayerStat.OnPlayerKilledEvent -= PlayerStat_OnPlayerKilledEvent;
     }
 
- 
+    private void PlayerStat_OnPlayerKilledEvent(object sender, EventArgs e) {
+        movingObject.KillPlayer();
+    }
+
     private void Instance_OnInventoryStateChangedEvent(object sender, Inventory.OnInventoryStateChangedEventArgs e) {
         if(e.isOpen)
             movingObject.StopMove();

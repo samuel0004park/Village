@@ -49,17 +49,15 @@ public class PlayerManager : MonoBehaviour
     public void UseItem(int _itemID) {
         switch (_itemID) {
             case 10001: //milk
-                playerStat.Heal_HP(1);
+                playerStat.StaminaBuff(100);
                 break;
             case 10002: //red_potion
                 playerStat.StaminaBuff(10);
                 break;
             case 10003://strawberry
-                playerStat.Heal_HP(1);
                 playerStat.Heal_Stamina(200);
                 break;
             case 10005://bread
-                playerStat.Heal_HP(3);
                 playerStat.Heal_Stamina(300);
                 break;
             default:
