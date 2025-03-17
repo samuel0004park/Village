@@ -1,1 +1,0 @@
-{"playerX":0,"playerY":-6,"playerZ":0,"playerCurrentHP":1,"playerCurrentMP":100,"questID":10,"questIndex":0,"playerItemInventory":[],"playerItemInventoryCount":[],"mapName":0,"sceneName":1,"switchList":[],"switchNameList":[],"varNameList":[],"varNumList":[]}

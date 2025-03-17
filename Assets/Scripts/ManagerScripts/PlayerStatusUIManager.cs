@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class PlayerStatusUIManager : MonoBehaviour
 {
-
     public static PlayerStatusUIManager Instance;
 
     [SerializeField] private PlayerStat PlayerStat;
@@ -14,7 +13,6 @@ public class PlayerStatusUIManager : MonoBehaviour
     [SerializeField] private CanvasGroup CanvasGroup;
     [SerializeField] private GameObject Die_Panel;
  
-
     private void Awake() {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
@@ -96,6 +94,7 @@ public class PlayerStatusUIManager : MonoBehaviour
         Inventory.Instance.OnInventoryStateChangedEvent -= Instance_OnInventoryStateChangedEvent;
         PlayerStat.OnPlayerHeartBeatEvent -= PlayerStat_OnPlayerHeartBeatEvent;
         GameManager.Instance.OnStartGameEvent -= Instance_OnStartGameEvent;
+        ObjectDialogue.OnObjectDialogueStateChangedEvent -= ObjectDialogue_OnObjectDialogueStateChangedEvent;
     }
 
     #endregion

@@ -51,9 +51,9 @@ public class PlayerStat : MonoBehaviour {
 
 
 
-    public void LoadStat(int playerCurrentHP, int playerCurrentMP) {
-        currentHp = playerCurrentHP;
-        currentStamina = playerCurrentMP;
+    public void LoadStat() {
+        currentHp = MAX_HP;
+        currentStamina = MAX_STAMINA;
 
         UpdateBar();
     }

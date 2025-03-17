@@ -53,7 +53,7 @@ public class Title : MonoBehaviour
 
     private void LoadNewPlayer() {
         playerManager.SetLocationInfo(Location.SceneNames.Init, Location.MapNames.StartingIsland);
-        playerManager.playerStat.LoadStat(PlayerStat.MAX_HP, PlayerStat.MAX_STAMINA);
+        playerManager.playerStat.LoadStat();
     }
 
     private void LoadExingPlayer() {

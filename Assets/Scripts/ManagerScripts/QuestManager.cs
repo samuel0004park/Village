@@ -51,7 +51,7 @@ public class QuestManager : MonoBehaviour
 
     private void GenerateData()
     {
-        questList.Add(10, new QuestData("루나와 루도 만나기", 
+        questList.Add(10, new QuestData("림과 론 만나기", 
             new int[] { 2000, 3000 },
             new Location.MapNames[]{ Location.MapNames.StartingIsland, Location.MapNames.StartingIsland }));
         questList.Add(20, new QuestData("신사에 바칠 동전 찾기", 

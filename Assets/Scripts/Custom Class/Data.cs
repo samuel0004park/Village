@@ -8,9 +8,6 @@ public class Data {
     public int playerY;
     public int playerZ;
 
-    public int playerCurrentHP;
-    public int playerCurrentMP;
-
     public int questID;
     public int questIndex;
 

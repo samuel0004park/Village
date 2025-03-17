@@ -36,9 +36,6 @@ public class SaveNLoad : MonoBehaviour
         data.playerY = playerPosition.y;
         data.playerZ = playerPosition.z;
         
-        data.playerCurrentHP = playerStat.currentHp;
-        data.playerCurrentMP = playerStat.currentStamina;
-
         data.questID = QuestManager.Instance.questId;
         data.questIndex = QuestManager.Instance.questActionIndex;
 
@@ -76,7 +73,7 @@ public class SaveNLoad : MonoBehaviour
             playerManager.SetLocationInfo(data.sceneName,data.mapName);
             vector.Set(data.playerX, data.playerY, data.playerZ);
             GameManager.Instance.SetSpawnPoint(vector);
-            playerManager.playerStat.LoadStat(data.playerCurrentHP, data.playerCurrentMP);
+            playerManager.playerStat.LoadStat();
             QuestManager.Instance.LoadQuestProgress(data.questID, data.questIndex);
             DatabaseManager.Instance.InitiateDatabase(data.varNameList, data.varNumList, data.switchNameList, data.switchList);
 

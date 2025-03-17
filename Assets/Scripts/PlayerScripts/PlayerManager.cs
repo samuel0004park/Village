@@ -25,9 +25,27 @@ public class PlayerManager : MonoBehaviour
         PlayerInteraction = GetComponent<PlayerInteraction>();
         PlayerMovement = GetComponent<PlayerMovement>();
         playerStat = GetComponent<PlayerStat>();
+
+    }
+    private void Start() {
+        SubscribeEvents();
     }
 
-   
+    private void OnDestroy() {
+        UnSubscribeEvents();
+    }
+
+    private void SubscribeEvents() {
+        UIManager.Instance.OnReturnToTitleEvent += Instance_OnReturnToTitleEvent;
+    }
+    private void UnSubscribeEvents() {
+        UIManager.Instance.OnReturnToTitleEvent -= Instance_OnReturnToTitleEvent;
+    }
+
+    private void Instance_OnReturnToTitleEvent(object sender, System.EventArgs e) {
+        Destroy(gameObject);
+    }
+
     public void ShowVisuals() {
         gameObject.SetActive(true);
     }

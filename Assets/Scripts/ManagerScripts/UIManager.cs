@@ -21,12 +21,10 @@ public class UIManager : MonoBehaviour
 
     private void Awake() {
         if (Instance == null) {
-            DontDestroyOnLoad(this.gameObject);
+            DontDestroyOnLoad(gameObject);
             Instance = this;
         }
-        else  Destroy(this.gameObject);
-
-        
+        else  Destroy(gameObject);
     }
 
     private void OnDestroy() {
@@ -127,6 +125,9 @@ public class UIManager : MonoBehaviour
         OnReturnToTitleEvent?.Invoke(this,EventArgs.Empty);
         isLive = true;
         Time.timeScale = 1f; //set scene time to normal     
+
+        Destroy(gameObject);
+
         SceneManager.LoadScene("Title");
     }
 
