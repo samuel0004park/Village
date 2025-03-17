@@ -2,6 +2,11 @@
 2D Top Down Story Game made with Unity.   
 
 
+# Play
+
+Play at itch.io
+https://samuel0004park.itch.io/village
+
 ## Video Demonstration
 
 Check youtube video for demo
